@@ -1,0 +1,8 @@
+config.yaml
+
+#bin
+amazonpricecheck
+aldianapricecheck
+
+#log
+*.log
