@@ -1,0 +1,23 @@
+priceConfig: #these are the asins to search for
+  -
+    minPrice: 2.99
+    asins:
+      - B01BKS2X0K #neuromancer
+  - 
+    minPrice: 1.99
+    asins:
+      - B00B7NPRY8 #dune
+  -
+    minPrice: 0
+    asins:
+      - B007UH4D3G #jurassic park
+email: #configuration about the emailer
+  enabled: false #when false, don't send an email
+  private_key: ""
+  public_key: ""
+  from:
+    address: "no-reply@yourdomain.com"
+    name: "Your Emailer"
+  to:
+    address: "your-email@whatever.com"
+    name: "Your Name"
