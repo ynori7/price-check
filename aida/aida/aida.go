@@ -1,21 +1,30 @@
-package aldiana
+package aida
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"strconv"
-	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	log "github.com/sirupsen/logrus"
+	"github.com/ynori7/hulksmash/anonymizer"
+	hulkhttp "github.com/ynori7/hulksmash/http"
 )
 
-var client = http.Client{}
+var client *http.Client
+var reqAnonymizer anonymizer.Anonymizer
+
+func init() {
+	client = hulkhttp.NewClient()
+	reqAnonymizer = anonymizer.New(int64(rand.Int()))
+}
 
 func CheckPrice(url string, minPrice float64) (string, error) {
-	logger := log.WithFields(log.Fields{"Logger": "aldiana"})
+	logger := log.WithFields(log.Fields{"Logger": "aida"})
 
 	req, _ := http.NewRequest(http.MethodGet, url, nil)
+	reqAnonymizer.AnonymizeRequest(req)
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -29,8 +38,8 @@ func CheckPrice(url string, minPrice float64) (string, error) {
 		return "", err
 	}
 
-	priceRaw, _ := doc.Find(".offerSummary--container .price--amount--integer").Html()
-	price, err := strconv.ParseFloat(strings.ReplaceAll(priceRaw, ".", ""), 64)
+	priceRaw, _ := doc.Find("#cruisedetail .route-offers__cabin-price").Attr("price")
+	price, err := strconv.ParseFloat(priceRaw, 64)
 	if err != nil {
 		logger.WithFields(log.Fields{"error": err}).Warn("Error parsing price")
 		return "", err

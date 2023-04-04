@@ -3,6 +3,7 @@ config.yaml
 #bin
 amazonpricecheck
 aldianapricecheck
+aidapricecheck
 
 #log
 *.log

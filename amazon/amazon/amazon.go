@@ -2,12 +2,15 @@ package amazon
 
 import (
 	"fmt"
+	"math/rand"
 	"net/http"
 	"strconv"
 	"strings"
 
 	"github.com/PuerkitoBio/goquery"
 	log "github.com/sirupsen/logrus"
+	"github.com/ynori7/hulksmash/anonymizer"
+	hulkhttp "github.com/ynori7/hulksmash/http"
 	"github.com/ynori7/price-check/amazon/config"
 )
 
@@ -21,7 +24,13 @@ type Result struct {
 	Error  error
 }
 
-var client = http.Client{}
+var client *http.Client
+var reqAnonymizer anonymizer.Anonymizer
+
+func init() {
+	client = hulkhttp.NewClient()
+	reqAnonymizer = anonymizer.New(int64(rand.Int()))
+}
 
 func CheckPrices(priceConfig []config.PriceConf) []Result {
 	logger := log.WithFields(log.Fields{"Logger": "amazon"})
@@ -44,6 +53,7 @@ func CheckPrices(priceConfig []config.PriceConf) []Result {
 func check(logger *log.Entry, asin string, minPrice float64) *Result {
 	result := &Result{ASIN: asin}
 	req, _ := http.NewRequest(http.MethodGet, baseUrl+asin, nil)
+	reqAnonymizer.AnonymizeRequest(req)
 
 	resp, err := client.Do(req)
 	if err != nil {

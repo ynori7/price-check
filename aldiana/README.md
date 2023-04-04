@@ -12,7 +12,7 @@ Be sure to first copy config.yaml.dist to config.yaml and fill in the missing bl
 
 First, build the binary:
 ```
-go build -o aldianapricecheck aldiana/cmd/main.go
+go build -o bin/aldianapricecheck aldiana/cmd/main.go
 ```
 
 Then set up the cronjob:

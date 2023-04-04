@@ -1,0 +1,14 @@
+priceConfig: 
+  - 
+    minPrice: 2600 #minimum price to consider
+    url: https://aida.de/finden/.... #some aida trip url
+email: #configuration about the emailer
+  enabled: false #when false, don't send an email
+  private_key: ""
+  public_key: ""
+  from:
+    address: "no-reply@yourdomain.com"
+    name: "Your Emailer"
+  to:
+    address: "your-email@whatever.com"
+    name: "Your Name"

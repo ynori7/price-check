@@ -1,13 +1,20 @@
 package main
 
 import (
+	"fmt"
 	"io/ioutil"
 
 	log "github.com/sirupsen/logrus"
-	"github.com/ynori7/price-check/aldiana/aldiana"
-	"github.com/ynori7/price-check/aldiana/config"
+	"github.com/ynori7/price-check/aida/aida"
+	"github.com/ynori7/price-check/aida/config"
 	"github.com/ynori7/price-check/emailer"
 )
+
+type Success struct {
+	Threshold float64
+	Price     string
+	URL       string
+}
 
 func main() {
 	log.SetFormatter(&log.TextFormatter{
@@ -33,13 +40,17 @@ func main() {
 	}
 
 	//Check the prices
-	successes := make([]string, 0)
+	successes := make([]Success, 0)
 	for _, priceConf := range conf.PriceConfig {
-		price, err := aldiana.CheckPrice(priceConf.URL, priceConf.MinPrice)
+		price, err := aida.CheckPrice(priceConf.URL, priceConf.MinPrice)
 		if err != nil {
 			logger.WithFields(log.Fields{"error": err}).Info("Error checking price")
 		} else {
-			successes = append(successes, price+" \n\n"+priceConf.URL)
+			successes = append(successes, Success{
+				Threshold: priceConf.MinPrice,
+				Price:     price,
+				URL:       priceConf.URL,
+			})
 		}
 	}
 
@@ -50,14 +61,14 @@ func main() {
 	//Build the email report
 	body := ""
 	for _, s := range successes {
-		body += "The price for Aldiana has fallen below the threshold. Current price: " + s + "\n---\n"
+		body += fmt.Sprintf("The price for Aida has fallen below the threshold of %.2f. Current price: %s\n\n%s\n---\n", s.Threshold, s.Price, s.URL)
 		logger.Info(body)
 	}
 
 	//Send email
 	if conf.Email.Enabled {
 		mailer := emailer.NewMailer(conf.Email)
-		if err := mailer.SendMail("Aldiana price check results", body); err != nil {
+		if err := mailer.SendMail("Aida price check results", body); err != nil {
 			logger.WithFields(log.Fields{"error": err}).Error("Error sending email")
 		}
 	}
