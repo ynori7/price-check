@@ -54,6 +54,8 @@ func check(logger *log.Entry, asin string, minPrice float64) *Result {
 	result := &Result{ASIN: asin}
 	req, _ := http.NewRequest(http.MethodGet, baseUrl+asin, nil)
 	reqAnonymizer.AnonymizeRequest(req)
+	req.Header.Set("Accept", "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7")
+	req.Header.Set("Accept-Language", "en-GB,en;q=0.9")
 
 	resp, err := client.Do(req)
 	if err != nil {
@@ -77,6 +79,10 @@ func check(logger *log.Entry, asin string, minPrice float64) *Result {
 		return result
 	}
 	title := strings.TrimSpace(doc.Find("#productTitle").Text())
+	if title == "" { // for some reason the title sometimes comes back empty
+		title = baseUrl + asin
+	}
+
 	kindleUnlimitedIcon := doc.Find(".a-icon-kindle-unlimited")
 	isKindleUnlimited := kindleUnlimitedIcon != nil && kindleUnlimitedIcon.Nodes != nil
 

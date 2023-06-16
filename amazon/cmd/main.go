@@ -53,7 +53,7 @@ func main() {
 		} else {
 			body.WriteString("ASIN: " + res.ASIN)
 			body.WriteString(" failed: ")
-			body.WriteString(err.Error())
+			body.WriteString(res.Error.Error())
 			body.WriteString("\n\n")
 		}
 	}
