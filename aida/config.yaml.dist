@@ -1,7 +1,7 @@
 priceConfig: 
   - 
     minPrice: 2600 #minimum price to consider
-    url: https://aida.de/finden/.... #some aida trip url
+    url: https://aida.de/finden/.... #some aida listing url
 email: #configuration about the emailer
   enabled: false #when false, don't send an email
   private_key: ""

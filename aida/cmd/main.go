@@ -11,6 +11,7 @@ import (
 )
 
 type Success struct {
+	Name      string
 	Threshold float64
 	Price     string
 	URL       string
@@ -42,15 +43,18 @@ func main() {
 	//Check the prices
 	successes := make([]Success, 0)
 	for _, priceConf := range conf.PriceConfig {
-		price, err := aida.CheckPrice(priceConf.URL, priceConf.MinPrice)
+		results, err := aida.CheckPrice(priceConf.URL, priceConf.MinPrice)
 		if err != nil {
 			logger.WithFields(log.Fields{"error": err}).Info("Error checking price")
 		} else {
-			successes = append(successes, Success{
-				Threshold: priceConf.MinPrice,
-				Price:     price,
-				URL:       priceConf.URL,
-			})
+			for _, result := range results {
+				successes = append(successes, Success{
+					Name:      result.Name,
+					Threshold: priceConf.MinPrice,
+					Price:     result.Price,
+					URL:       result.URL,
+				})
+			}
 		}
 	}
 
@@ -61,7 +65,7 @@ func main() {
 	//Build the email report
 	body := ""
 	for _, s := range successes {
-		body += fmt.Sprintf("The price for Aida has fallen below the threshold of %.2f. Current price: %s\n\n%s\n---\n", s.Threshold, s.Price, s.URL)
+		body += fmt.Sprintf("The price for Aida \"%s\" has fallen below the threshold of %.2f. Current price: %s\n\n%s\n---\n", s.Name, s.Threshold, s.Price, s.URL)
 		logger.Info(body)
 	}
 
