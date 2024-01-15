@@ -1,0 +1,19 @@
+priceConfig: 
+  - 
+    minPrice: 2600 #minimum price to consider
+    productCodes: VOA42061,SZG87041,MVP53015,KLU25062,KLU58071 #take it from some request to https://www.robinson.com/de/de/angebot from https://www.robinson.com/de/de/buchen/
+    startDate: 2024-01-27
+    endDate: 2024-03-31
+    duration: 6
+    adults: 2
+    childAge: 5
+email: #configuration about the emailer
+  enabled: false #when false, don't send an email
+  private_key: ""
+  public_key: ""
+  from:
+    address: "no-reply@yourdomain.com"
+    name: "Your Emailer"
+  to:
+    address: "your-email@whatever.com"
+    name: "Your Name"
