@@ -114,7 +114,5 @@ func buildOfferListURL() string {
 }
 
 func buildOfferDetailsURL(buttonLink string) string {
-	//offer/button/href
-	strings.ReplaceAll(buttonLink, "/de/de/dispatch/?", "https://www.robinson.com/api/v1/offer/tcp/?hotelOnly=1&")
 	return strings.ReplaceAll(buttonLink, "/de/de/dispatch/?", "https://www.robinson.com/api/v1/offer/tcp/?hotelOnly=1&")
 }
