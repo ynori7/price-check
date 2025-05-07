@@ -1,7 +1,30 @@
-priceConfig: 
-  - 
-    minPrice: 2600 #minimum price to consider
-    url: https://aida.de/finden/.... #some aida listing url
+priceConfig:
+  adults: 2
+  children: 1
+  juveniles: 1
+  babies: 1
+  durations:
+    - 1-5
+    - 6-9
+    - 10-13
+  ports: # check each of these starting ports directly with no flight
+    - DEHAM
+    - DEKEL
+    - DEWAR
+  airports: # check each of these starting airports with a flight
+    - MUC
+  withFlightDayPriceThreshold: 390
+  withoutFlightDayPriceThreshold: 260
+
+  trips: #some trips to scan
+    -
+      start: 2025-06-01
+      end: 2025-09-15
+
+    -
+      start: 2025-11-01
+      end: 2025-11-09
+
 email: #configuration about the emailer
   enabled: false #when false, don't send an email
   private_key: ""

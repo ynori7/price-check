@@ -22,13 +22,26 @@ func ParseCliFlags() {
 }
 
 type Config struct {
-	PriceConfig []PriceConfig  `yaml:"priceConfig"`
+	PriceConfig PriceConfig    `yaml:"priceConfig"`
 	Email       emailer.Config `yaml:"email"`
 }
 
 type PriceConfig struct {
-	URL      string  `yaml:"url"`
-	MinPrice float64 `yaml:"minPrice"`
+	Adults                         int      `yaml:"adults"`
+	Children                       int      `yaml:"children"`
+	Juveniles                      int      `yaml:"juveniles"`
+	Babies                         int      `yaml:"babies"`
+	Durations                      []string `yaml:"durations"`
+	Ports                          []string `yaml:"ports"`
+	Airports                       []string `yaml:"airports"`
+	Trips                          []Trip   `yaml:"trips"`
+	WithFlightDayPriceThreshold    float64  `yaml:"withFlightDayPriceThreshold"`
+	WithoutFlightDayPriceThreshold float64  `yaml:"withoutFlightDayPriceThreshold"`
+}
+
+type Trip struct {
+	Start string `yaml:"start"`
+	End   string `yaml:"end"`
 }
 
 /**

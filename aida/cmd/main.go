@@ -7,6 +7,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/ynori7/price-check/aida/aida"
 	"github.com/ynori7/price-check/aida/config"
+	"github.com/ynori7/price-check/aida/domain"
 	"github.com/ynori7/price-check/emailer"
 )
 
@@ -28,6 +29,7 @@ func main() {
 	if config.CliConf.ConfigFile == "" {
 		log.Fatal("You must specify the path to the config file")
 	}
+	logger.Info("Starting Aida price check...")
 
 	//Get the config
 	data, err := ioutil.ReadFile(config.CliConf.ConfigFile)
@@ -40,17 +42,20 @@ func main() {
 		logger.WithFields(log.Fields{"error": err}).Fatal("Error parsing config")
 	}
 
+	tripSpecs := domain.BuildTripSpecifications(conf.PriceConfig)
+	logger.WithFields(log.Fields{"count": len(tripSpecs)}).Info("Crawling trip specifications...")
+
 	//Check the prices
 	successes := make([]Success, 0)
-	for _, priceConf := range conf.PriceConfig {
-		results, err := aida.CheckPrice(priceConf.URL, priceConf.MinPrice)
+	for _, trip := range tripSpecs {
+		results, err := aida.CheckPrice(trip)
 		if err != nil {
 			logger.WithFields(log.Fields{"error": err}).Info("Error checking price")
 		} else {
 			for _, result := range results {
 				successes = append(successes, Success{
 					Name:      result.Name,
-					Threshold: priceConf.MinPrice,
+					Threshold: trip.DayPriceThreshold,
 					Price:     result.Price,
 					URL:       result.URL,
 				})

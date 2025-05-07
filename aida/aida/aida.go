@@ -1,16 +1,15 @@
 package aida
 
 import (
+	"encoding/json"
 	"fmt"
 	"math/rand"
 	"net/http"
-	"strconv"
-	"strings"
 
-	"github.com/PuerkitoBio/goquery"
 	log "github.com/sirupsen/logrus"
 	"github.com/ynori7/hulksmash/anonymizer"
 	hulkhttp "github.com/ynori7/hulksmash/http"
+	"github.com/ynori7/price-check/aida/domain"
 )
 
 type Result struct {
@@ -27,8 +26,12 @@ func init() {
 	reqAnonymizer = anonymizer.New(int64(rand.Int()))
 }
 
-func CheckPrice(url string, minPrice float64) ([]Result, error) {
+func CheckPrice(tripSpec domain.TripSpec) ([]Result, error) {
+	url := tripSpec.URL
+	priceThreshold := tripSpec.DayPriceThreshold
+
 	logger := log.WithFields(log.Fields{"Logger": "aida"})
+	logger.WithFields(log.Fields{"url": url}).Info("Scanning trip: " + tripSpec.Title)
 
 	req, _ := http.NewRequest(http.MethodGet, url, nil)
 	reqAnonymizer.AnonymizeRequest(req)
@@ -38,42 +41,39 @@ func CheckPrice(url string, minPrice float64) ([]Result, error) {
 		logger.WithFields(log.Fields{"error": err}).Warn("Error making http request")
 		return nil, err
 	}
+	defer resp.Body.Close()
 
-	doc, err := goquery.NewDocumentFromReader(resp.Body)
+	cruiseResp := new(CruiseResponse)
+	err = json.NewDecoder(resp.Body).Decode(cruiseResp)
 	if err != nil {
-		logger.WithFields(log.Fields{"error": err}).Warn("Error parsing document")
+		logger.WithFields(log.Fields{"error": err}).Warn("Error decoding response")
 		return nil, err
 	}
 
 	results := make([]Result, 0)
 
-	doc.Find(".new-card-body").Each(func(i int, s *goquery.Selection) {
-		title, _ := s.Find(".route-teaser-title").Html()
-		title = strings.ReplaceAll(title, "&amp;", "&")
-
-		url, _ := s.Find(".new-routeteaser-action a.btn").Attr("href")
-
-		priceRaw, _ := s.Find(".new-routeteaser-price-amount").Html()
-		priceRaw = strings.ReplaceAll(strings.TrimSpace(priceRaw), ".", "")
-		price, err := strconv.ParseFloat(priceRaw, 64)
-		if err != nil {
-			logger.WithFields(log.Fields{"error": err}).Warn("Error parsing price")
-			return
+	for _, cruiseItem := range cruiseResp.CruiseItems {
+		if len(cruiseItem.CruiseItemVariants) == 0 {
+			logger.WithFields(log.Fields{"title": cruiseItem.Title}).Debug("No cruise item variants found")
+			continue
 		}
 
-		priceString := fmt.Sprintf("%.0f", price)
+		pricePerDay := cruiseItem.CruiseItemVariants[0].Amount / float64(cruiseItem.Duration)
 
-		if price > minPrice {
-			logger.WithFields(log.Fields{"title": title, "price": priceString}).Info("Price is too high")
-			return
+		logger.WithFields(log.Fields{"title": cruiseItem.Title, "duration": cruiseItem.Duration, "price_per_day": pricePerDay}).Debug("Checking cruise item")
+
+		if pricePerDay <= priceThreshold {
+			results = append(results, Result{
+				Name: cruiseItem.Title,
+				URL: domain.BuildDetailsURL(
+					cruiseItem.CruiseItemVariants[0].JourneyIdentifier,
+					cruiseItem.CruiseItemVariants[0].DepartureAirport,
+					tripSpec,
+				),
+				Price: fmt.Sprintf("%.02f", cruiseItem.CruiseItemVariants[0].Amount),
+			})
 		}
-
-		results = append(results, Result{
-			Name:  title,
-			URL:   "https://www.aida.de/" + url,
-			Price: priceString,
-		})
-	})
+	}
 
 	return results, nil
 }
