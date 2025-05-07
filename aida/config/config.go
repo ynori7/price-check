@@ -34,6 +34,7 @@ type PriceConfig struct {
 	Durations                      []string `yaml:"durations"`
 	Ports                          []string `yaml:"ports"`
 	Airports                       []string `yaml:"airports"`
+	PreferredCabinType             string   `yaml:"preferredCabinType"`
 	Trips                          []Trip   `yaml:"trips"`
 	WithFlightDayPriceThreshold    float64  `yaml:"withFlightDayPriceThreshold"`
 	WithoutFlightDayPriceThreshold float64  `yaml:"withoutFlightDayPriceThreshold"`

@@ -48,7 +48,7 @@ func main() {
 	//Check the prices
 	successes := make([]Success, 0)
 	for _, trip := range tripSpecs {
-		results, err := aida.CheckPrice(trip)
+		results, err := aida.CheckPriceOverview(trip)
 		if err != nil {
 			logger.WithFields(log.Fields{"error": err}).Info("Error checking price")
 		} else {

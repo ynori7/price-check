@@ -50,3 +50,16 @@ func BuildDetailsURL(journeyIdentifier, departureAirport string, tripSpec TripSp
 
 	return fmt.Sprintf("https://aida.de/finden/%s/VARIO?", journeyIdentifier) + params.Encode()
 }
+
+func BuildDetailsAPIUrl(journeyIdentifier, tariffType string, tripSpec TripSpec) string {
+	params := url.Values{
+		"JourneyIdentifier": {journeyIdentifier},
+		"TariffType":        {tariffType},
+		"adults":       {fmt.Sprintf("%d", tripSpec.Adults)},
+		"children":     {fmt.Sprintf("%d", tripSpec.Children)},
+		"juveniles":    {fmt.Sprintf("%d", tripSpec.Juveniles)},
+		"babies":       {fmt.Sprintf("%d", tripSpec.Babies)},
+	}
+
+	return "https://aida.de/content/aida-search-and-booking/requests/detail.content.json?" + params.Encode()
+}

@@ -15,6 +15,7 @@ priceConfig:
     - MUC
   withFlightDayPriceThreshold: 390
   withoutFlightDayPriceThreshold: 260
+  preferredCabinType: B # if we find a trip cheap enough, it'll look up the cabin options and see if the preferred cabin type is also cheap enough
 
   trips: #some trips to scan
     -

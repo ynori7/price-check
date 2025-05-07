@@ -7,8 +7,9 @@ import (
 )
 
 type TripSpec struct {
-	URL               string //URL to the trip
-	DayPriceThreshold float64
+	URL                string //URL to the trip
+	DayPriceThreshold  float64
+	PreferredCabinType string //Preferred cabin type for the trip
 
 	//details about travelers. Used also to build the details URL
 	Adults    int
@@ -37,12 +38,13 @@ func BuildTripSpecifications(conf config.PriceConfig) []TripSpec {
 					port,
 					"",
 				),
-				DayPriceThreshold: conf.WithoutFlightDayPriceThreshold,
-				Adults:            conf.Adults,
-				Children:          conf.Children,
-				Juveniles:         conf.Juveniles,
-				Babies:            conf.Babies,
-				Title:             fmt.Sprintf("%s to %s from port %s", trip.Start, trip.End, port),
+				DayPriceThreshold:  conf.WithoutFlightDayPriceThreshold,
+				Adults:             conf.Adults,
+				Children:           conf.Children,
+				Juveniles:          conf.Juveniles,
+				Babies:             conf.Babies,
+				PreferredCabinType: conf.PreferredCabinType,
+				Title:              fmt.Sprintf("%s to %s from port %s", trip.Start, trip.End, port),
 			})
 		}
 
@@ -60,12 +62,13 @@ func BuildTripSpecifications(conf config.PriceConfig) []TripSpec {
 					"",
 					airport,
 				),
-				DayPriceThreshold: conf.WithFlightDayPriceThreshold,
-				Adults:            conf.Adults,
-				Children:          conf.Children,
-				Juveniles:         conf.Juveniles,
-				Babies:            conf.Babies,
-				Title:             fmt.Sprintf("%s to %s with flight from %s", trip.Start, trip.End, airport),
+				DayPriceThreshold:  conf.WithFlightDayPriceThreshold,
+				Adults:             conf.Adults,
+				Children:           conf.Children,
+				Juveniles:          conf.Juveniles,
+				Babies:             conf.Babies,
+				PreferredCabinType: conf.PreferredCabinType,
+				Title:              fmt.Sprintf("%s to %s with flight from %s", trip.Start, trip.End, airport),
 			})
 		}
 	}
