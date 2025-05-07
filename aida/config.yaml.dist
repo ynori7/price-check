@@ -26,6 +26,8 @@ priceConfig:
       start: 2025-11-01
       end: 2025-11-09
 
+debug: true #when true, we use debug level for logs
+
 email: #configuration about the emailer
   enabled: false #when false, don't send an email
   private_key: ""

@@ -42,6 +42,10 @@ func main() {
 		logger.WithFields(log.Fields{"error": err}).Fatal("Error parsing config")
 	}
 
+	if !conf.Debug {
+		log.SetLevel(log.InfoLevel)
+	}
+
 	tripSpecs := domain.BuildTripSpecifications(conf.PriceConfig)
 	logger.WithFields(log.Fields{"count": len(tripSpecs)}).Info("Crawling trip specifications...")
 

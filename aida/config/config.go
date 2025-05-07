@@ -24,6 +24,7 @@ func ParseCliFlags() {
 type Config struct {
 	PriceConfig PriceConfig    `yaml:"priceConfig"`
 	Email       emailer.Config `yaml:"email"`
+	Debug       bool           `yaml:"debug"`
 }
 
 type PriceConfig struct {
