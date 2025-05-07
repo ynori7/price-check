@@ -114,7 +114,7 @@ func CheckIfPreferredCabinCheapEnough(journeyIdentifier, tariffType string, dura
 				logger.WithFields(log.Fields{"cabin_code": cabinItem.CabinCode, "price_per_day": pricePerDay}).Info("Preferred cabin price is below threshold")
 				return true, nil
 			}
-			logger.WithFields(log.Fields{"cabin_code": cabinItem.CabinCode, "price_per_day": pricePerDay}).Info("Preferred cabin price is above threshold")
+			logger.WithFields(log.Fields{"cabin_code": cabinItem.CabinCode, "price_per_day": pricePerDay}).Debug("Preferred cabin price is above threshold")
 			return false, nil
 		}
 	}
