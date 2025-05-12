@@ -11,20 +11,25 @@ var CliConf CliConfig
 
 type CliConfig struct {
 	ConfigFile string
+	ScanName   string
 }
 
 func ParseCliFlags() {
 	configFile := flag.String("config", "", "the path to the configuration yaml")
+	scanName := flag.String("scanName", "", "the name of the scan")
 
 	flag.Parse()
 
 	CliConf.ConfigFile = *configFile
+	CliConf.ScanName = *scanName
 }
 
 type Config struct {
-	PriceConfig PriceConfig    `yaml:"priceConfig"`
-	Email       emailer.Config `yaml:"email"`
-	Debug       bool           `yaml:"debug"`
+	ConfigName      string         `yaml:"configName"`
+	PriceConfig     PriceConfig    `yaml:"priceConfig"`
+	Email           emailer.Config `yaml:"email"`
+	Debug           bool           `yaml:"debug"`
+	OutputDirectory string         `yaml:"outputDirectory"`
 }
 
 type PriceConfig struct {

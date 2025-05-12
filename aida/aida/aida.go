@@ -12,12 +12,6 @@ import (
 	"github.com/ynori7/price-check/aida/domain"
 )
 
-type Result struct {
-	Name  string
-	URL   string
-	Price string
-}
-
 var client *http.Client
 var reqAnonymizer anonymizer.Anonymizer
 
@@ -26,7 +20,7 @@ func init() {
 	reqAnonymizer = anonymizer.New(int64(rand.Int()))
 }
 
-func CheckPriceOverview(tripSpec domain.TripSpec) ([]Result, error) {
+func CheckPriceOverview(tripSpec domain.TripSpec) ([]domain.Result, error) {
 	url := tripSpec.URL
 	priceThreshold := tripSpec.DayPriceThreshold
 
@@ -50,7 +44,7 @@ func CheckPriceOverview(tripSpec domain.TripSpec) ([]Result, error) {
 		return nil, err
 	}
 
-	results := make([]Result, 0)
+	results := make([]domain.Result, 0)
 
 	for _, cruiseItem := range cruiseResp.CruiseItems {
 		if len(cruiseItem.CruiseItemVariants) == 0 {
@@ -60,9 +54,27 @@ func CheckPriceOverview(tripSpec domain.TripSpec) ([]Result, error) {
 
 		pricePerDay := cruiseItem.CruiseItemVariants[0].Amount / float64(cruiseItem.Duration)
 
+		res := domain.Result{
+			Name: cruiseItem.Title,
+			URL: domain.BuildDetailsURL(
+				cruiseItem.CruiseItemVariants[0].JourneyIdentifier,
+				cruiseItem.CruiseItemVariants[0].DepartureAirport,
+				tripSpec,
+			),
+			Region:     "", //TODO: where to find this?
+			Duration:   fmt.Sprintf("%d days", cruiseItem.Duration),
+			Port:       cruiseItem.CruiseItemVariants[0].FromCity,
+			WithFlight: cruiseItem.FlightIncluded,
+			BaseDayPrice:   fmt.Sprintf("%.02f", pricePerDay),
+			TotalBasePrice: fmt.Sprintf("%.02f", cruiseItem.CruiseItemVariants[0].Amount),
+			
+		}
+
 		logger.WithFields(log.Fields{"title": cruiseItem.Title, "duration": cruiseItem.Duration, "price_per_day": pricePerDay}).Debug("Checking cruise item")
 
 		if pricePerDay <= priceThreshold {
+			res.IsBaseBelowThreshold = true
+
 			// if it's cheap enough, also check if the preferred cabin is available and cheap enough
 			if preferredCabinCheapEnough, err := CheckIfPreferredCabinCheapEnough(
 				cruiseItem.CruiseItemVariants[0].JourneyIdentifier,
@@ -70,17 +82,11 @@ func CheckPriceOverview(tripSpec domain.TripSpec) ([]Result, error) {
 				cruiseItem.Duration,
 				tripSpec,
 			); err == nil && preferredCabinCheapEnough {
-				results = append(results, Result{
-					Name: cruiseItem.Title,
-					URL: domain.BuildDetailsURL(
-						cruiseItem.CruiseItemVariants[0].JourneyIdentifier,
-						cruiseItem.CruiseItemVariants[0].DepartureAirport,
-						tripSpec,
-					),
-					Price: fmt.Sprintf("%.02f", cruiseItem.CruiseItemVariants[0].Amount),
-				})
+				res.IsPreferredBelowThreshold = true
 			}
 		}
+		
+		results = append(results, res)
 	}
 
 	return results, nil

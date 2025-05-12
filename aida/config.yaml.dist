@@ -1,3 +1,4 @@
+configName: "standard"
 priceConfig:
   adults: 2
   children: 1
@@ -38,3 +39,5 @@ email: #configuration about the emailer
   to:
     address: "your-email@whatever.com"
     name: "Your Name"
+
+outputDirectory: "/Users/me/go/src/github/ynori7/price-check/out"
